@@ -7,5 +7,5 @@ import Dependencies._
 lazy val root = (project in file("."))
   .settings(
     name := "Universal-search",
-    libraryDependencies ++= cats ++ skunk
+    libraryDependencies ++= cats ++ skunk ++ http4s
   )

@@ -4,6 +4,7 @@ object Dependencies {
   object Versions {
     val skunkV = "0.3.2"
     val catsEffectV = "3.4.2"
+    val http4sV = "0.23.16"
   }
 
   import Versions._
@@ -14,5 +15,11 @@ object Dependencies {
 
   lazy val cats = Seq(
     "org.typelevel" %% "cats-effect" % catsEffectV
+  )
+
+  lazy val http4s = Seq(
+    "org.http4s" %% "http4s-core" % http4sV,
+    "org.http4s" %% "http4s-dsl" % http4sV,
+    "org.http4s" %% "http4s-ember-server" % http4sV
   )
 }
