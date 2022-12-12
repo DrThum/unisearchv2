@@ -25,7 +25,7 @@ object Main extends IOApp {
   )
 
   def routes(service: SearchService[IO]) = HttpRoutes.of[IO] {
-    case GET -> Root / "search" => service.search("04cbdc0d-468a-4318-a3de-90c971fef646").flatMap(l => Ok(l.head.name))
+    case GET -> Root / "search" => Ok(service.search("04cbdc0d-468a-4318-a3de-90c971fef646").map(_.head.name))
   }
 
   def httpApp(service: SearchService[IO]) = Router("/" -> routes(service)).orNotFound
@@ -41,11 +41,7 @@ object Main extends IOApp {
         .withPort(port"8080")
         .withHttpApp(httpApp(service))
         .build
-      // _ <- service.search("11111111-1111-1111-1111-111111111111")
-    } yield {
-      println(service.search("424b0a68-6407-421f-bd59-dd4d72161794").unsafeRunSync()(cats.effect.unsafe.IORuntime.global))
-      ExitCode.Success
-    }).useForever
+    } yield ExitCode.Success).useForever
   }
 
 }
