@@ -13,6 +13,10 @@ import org.http4s.dsl.io._
 import org.http4s.server.Router
 import org.http4s.ember.server.EmberServerBuilder
 import com.comcast.ip4s._
+import io.circe.syntax._
+import io.circe.generic.semiauto._
+import org.http4s.circe._
+import net.drthum.unisearch.models.Mediaplan.given
 
 object Main extends IOApp {
 
@@ -25,7 +29,7 @@ object Main extends IOApp {
   )
 
   def routes(service: SearchService[IO]) = HttpRoutes.of[IO] {
-    case GET -> Root / "search" => Ok(service.search("04cbdc0d-468a-4318-a3de-90c971fef646").map(_.head.name))
+    case GET -> Root / "search" => Ok(service.search("04cbdc0d-468a-4318-a3de-90c971fef646").map(a => a.asJson))
   }
 
   def httpApp(service: SearchService[IO]) = Router("/" -> routes(service)).orNotFound
