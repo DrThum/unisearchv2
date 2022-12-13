@@ -11,18 +11,16 @@ import fs2.Stream
 
 class SearchService[F[_]: Functor: Sync](dao: EntityDAO[F]) {
 
-  def search(search: String): Stream[F, List[Entity]] = {
+  def search(search: String): Stream[F, Entity] = {
     Try(UUID.fromString(search))
       .toOption
       .fold(searchByName(search))(searchById)
   }
 
-  private def searchById(id: UUID): Stream[F, List[Entity]] = {
-    (for {
-      mediaplans <- dao.getMediaplans(id)
-    } yield List(mediaplans))
+  private def searchById(id: UUID): Stream[F, Entity] = {
+    dao.getMediaplans(id)
   }
 
-  private def searchByName(name: String): Stream[F, List[Entity]] = ???
+  private def searchByName(name: String): Stream[F, Entity] = ???
 
 }

@@ -17,6 +17,7 @@ import io.circe.syntax._
 import io.circe.generic.semiauto._
 import org.http4s.circe._
 import net.drthum.unisearch.models.Mediaplan.given
+import io.circe.Encoder
 
 object Main extends IOApp {
 
@@ -29,7 +30,8 @@ object Main extends IOApp {
   )
 
   def routes(service: SearchService[IO]) = HttpRoutes.of[IO] {
-    case GET -> Root / "search" => Ok(service.search("04cbdc0d-468a-4318-a3de-90c971fef646").map(a => a.asJson))
+    case GET -> Root / "search" =>
+      Ok(service.search("a0898f39-4d35-4529-b01b-0da8b622bb45").map(_.asJson))
   }
 
   def httpApp(service: SearchService[IO]) = Router("/" -> routes(service)).orNotFound
