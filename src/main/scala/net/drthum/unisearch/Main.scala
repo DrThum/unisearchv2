@@ -29,9 +29,14 @@ object Main extends IOApp {
     password = Some("unisearch")
   )
 
+  object SearchQueryParamMatcher extends QueryParamDecoderMatcher[String]("q")
+
   def routes(service: SearchService[IO]) = HttpRoutes.of[IO] {
-    case GET -> Root / "search" =>
-      Ok(service.search("a0898f39-4d35-4529-b01b-0da8b622bb45").map(_.asJson))
+    case GET -> Root / "api" / "search" :? SearchQueryParamMatcher(query) =>
+      query match {
+        case "" => NoContent()
+        case q => Ok(service.search(q).map(_.asJson))
+      }
   }
 
   def httpApp(service: SearchService[IO]) = Router("/" -> routes(service)).orNotFound

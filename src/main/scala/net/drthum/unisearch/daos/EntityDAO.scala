@@ -22,11 +22,19 @@ class EntityDAO[F[_]](session: Session[F])(using mc: MonadCancel[F, Throwable]) 
     } yield mediaplans
   }
 
+  def getMediaplans(namePart: String): Stream[F, Mediaplan] = {
+    for {
+      ps <- Stream.resource(session.prepare(mediaplanByNamePartQuery))
+      mediaplans <- ps.stream(s"%$namePart%", 10)
+    } yield mediaplans
+  }
+
 }
 
 object EntityDAO {
 
   object Queries {
+
     val mediaplanByIdQuery: Query[UUID, Mediaplan] = {
       sql"""
         SELECT id, name
@@ -35,6 +43,16 @@ object EntityDAO {
       """.query(uuid ~ varchar)
          .gmap[Mediaplan]
     }
+
+    val mediaplanByNamePartQuery: Query[String, Mediaplan] = {
+      sql"""
+        SELECT id, name
+        FROM mediaplans
+        WHERE name ILIKE $varchar
+      """.query(uuid ~ varchar)
+         .gmap[Mediaplan]
+    }
+
   }
 
 }

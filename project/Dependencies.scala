@@ -6,6 +6,7 @@ object Dependencies {
     val catsEffectV = "3.4.2"
     val http4sV = "0.23.16"
     val circeV = "0.14.3"
+    val logbackV = "1.4.5"
   }
 
   import Versions._
@@ -29,4 +30,8 @@ object Dependencies {
     "io.circe" %% "circe-core",
     "io.circe" %% "circe-generic"
   ).map(_ % circeV)
+
+  lazy val logging = Seq(
+    "ch.qos.logback" % "logback-classic" % logbackV
+  )
 }

@@ -21,6 +21,8 @@ class SearchService[F[_]: Functor: Sync](dao: EntityDAO[F]) {
     dao.getMediaplans(id)
   }
 
-  private def searchByName(name: String): Stream[F, Entity] = ???
+  private def searchByName(namePart: String): Stream[F, Entity] = {
+    dao.getMediaplans(namePart)
+  }
 
 }
