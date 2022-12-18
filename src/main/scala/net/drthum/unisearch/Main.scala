@@ -1,23 +1,34 @@
 package net.drthum.unisearch
 
+import java.nio.charset.StandardCharsets
+import java.util.UUID
+
 import cats.effect._
+import com.comcast.ip4s._
+import fs2.{Pipe, Stream}
+import io.circe.generic.auto._
+import io.circe.syntax._
+import io.circe.{Encoder, Json}
+import natchez.Trace.Implicits.noop
+import org.http4s._
+import org.http4s.circe._
+import org.http4s.dsl.io._
+import org.http4s.ember.server.EmberServerBuilder
+import org.http4s.server.Router
 import skunk.Session
 import skunk.codec.all._
 import skunk.implicits._
-import natchez.Trace.Implicits.noop
+import sttp.capabilities.fs2.Fs2Streams
+import sttp.tapir._
+import sttp.tapir.generic.auto._
+import sttp.tapir.json.circe._
+import sttp.tapir.server.http4s.Http4sServerInterpreter
+import sttp.tapir.server.http4s.Http4sServerInterpreter.apply
+
 import net.drthum.unisearch.daos.EntityDAO
-import java.util.UUID
-import net.drthum.unisearch.services.SearchService
-import org.http4s._
-import org.http4s.dsl.io._
-import org.http4s.server.Router
-import org.http4s.ember.server.EmberServerBuilder
-import com.comcast.ip4s._
-import io.circe.syntax._
-import io.circe.generic.semiauto._
-import org.http4s.circe._
+import net.drthum.unisearch.models.Entity
 import net.drthum.unisearch.models.Mediaplan.given
-import io.circe.Encoder
+import net.drthum.unisearch.services.SearchService
 
 object Main extends IOApp {
 
@@ -31,15 +42,16 @@ object Main extends IOApp {
 
   object SearchQueryParamMatcher extends QueryParamDecoderMatcher[String]("q")
 
-  def routes(service: SearchService[IO]) = HttpRoutes.of[IO] {
-    case GET -> Root / "api" / "search" :? SearchQueryParamMatcher(query) =>
-      query match {
-        case "" => NoContent()
-        case q => Ok(service.search(q).map(_.asJson))
-      }
-  }
+  val searchEndpoint = endpoint
+    .in("api" / "search")
+    .in(query[String]("q"))
+    .out(jsonBody[List[Entity]])
 
   def httpApp(service: SearchService[IO]) = Router("/" -> routes(service)).orNotFound
+
+  def routes(service: SearchService[IO]): HttpRoutes[IO] = {
+    Http4sServerInterpreter[IO]().toRoutes(searchEndpoint.serverLogicSuccess[IO](q => service.search(q).compile.toList))
+  }
 
   override def run(args: List[String]): IO[ExitCode] = {
     (for {

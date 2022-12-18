@@ -7,6 +7,7 @@ object Dependencies {
     val http4sV = "0.23.16"
     val circeV = "0.14.3"
     val logbackV = "1.4.5"
+    val tapirV = "1.2.4"
   }
 
   import Versions._
@@ -33,5 +34,11 @@ object Dependencies {
 
   lazy val logging = Seq(
     "ch.qos.logback" % "logback-classic" % logbackV
+  )
+
+  lazy val tapir = Seq(
+    "com.softwaremill.sttp.tapir" %% "tapir-core" % tapirV,
+    "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % tapirV,
+    "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % tapirV
   )
 }

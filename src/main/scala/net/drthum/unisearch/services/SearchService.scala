@@ -8,13 +8,17 @@ import cats.Functor
 import cats.syntax.functor._
 import cats.effect.kernel.Sync
 import fs2.Stream
+import cats.effect.IO
 
 class SearchService[F[_]: Functor: Sync](dao: EntityDAO[F]) {
 
   def search(search: String): Stream[F, Entity] = {
-    Try(UUID.fromString(search))
-      .toOption
-      .fold(searchByName(search))(searchById)
+    search match {
+      case "" => Stream.empty
+      case _ => Try(UUID.fromString(search))
+                  .toOption
+                  .fold(searchByName(search))(searchById)
+    }
   }
 
   private def searchById(id: UUID): Stream[F, Entity] = {
