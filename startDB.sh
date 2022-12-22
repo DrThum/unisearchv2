@@ -10,4 +10,4 @@ docker run --rm \
 
 sleep 3
 
-psql postgresql://unisearch:unisearch@localhost/unisearch < src/main/resources/bootstrap.sql
+psql postgresql://unisearch:unisearch@localhost/unisearch < modules/backend/src/main/resources/bootstrap.sql
