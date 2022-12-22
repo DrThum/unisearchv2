@@ -8,6 +8,8 @@ object Dependencies {
     val circeV = "0.14.3"
     val logbackV = "1.4.5"
     val tapirV = "1.2.4"
+
+    val scalajsDomV = "2.3.0"
   }
 
   import Versions._
