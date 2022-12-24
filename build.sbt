@@ -1,3 +1,4 @@
+import lmcoursier.syntax.DependencyOp
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 import org.scalajs.linker.interface.ModuleInitializer
 import sbtcrossproject.{crossProject, CrossType}
@@ -11,7 +12,7 @@ ThisBuild / organization := "net.drthum"
 lazy val common = (crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure) in file("modules/common"))
   .settings(
     name := "universal-search-common",
-    libraryDependencies ++= circe
+    libraryDependencies ++= circe ++ tapir
   )
 
 lazy val backend = (project in file("modules/backend"))
@@ -39,8 +40,15 @@ lazy val frontend = (project in file("modules/frontend"))
   .settings(
     name := "universal-search-frontend",
     libraryDependencies ++= Seq( // TODO: move this to Dependencies.scala if possible ("value %%% can only be used within a task")
-      "org.scala-js" %%% "scalajs-dom" % Versions.scalajsDomV
-    ),
+      "org.scala-js" %%% "scalajs-dom" % Versions.scalajsDomV,
+      "com.softwaremill.sttp.tapir" %%% "tapir-sttp-client" % Dependencies.Versions.tapirV,
+      "io.github.cquiroz" %%% "scala-java-time" % "2.5.0", // FIXME: potentially useless
+      "io.circe" %%% "circe-core" % Dependencies.Versions.circeV,
+      "io.circe" %%% "circe-generic" % Dependencies.Versions.circeV,
+      "com.softwaremill.sttp.tapir" %%% "tapir-json-circe" % Dependencies.Versions.tapirV,
+      "com.softwaremill.sttp.client3" %%% "cats" % "3.8.5",
+      "org.typelevel" %%% "cats-effect" % Dependencies.Versions.catsEffectV
+    ) ++ tapir,
     Compile / scalaJSModuleInitializers += {
       ModuleInitializer.mainMethod("net.drthum.unisearch.Main", "main")
     },
