@@ -1,4 +1,5 @@
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
+import org.scalajs.linker.interface.ModuleInitializer
 import sbtcrossproject.{crossProject, CrossType}
 
 import Dependencies._
@@ -17,6 +18,8 @@ lazy val backend = (project in file("modules/backend"))
   .settings(
     name := "universal-search-backend",
     libraryDependencies ++= cats ++ skunk ++ http4s ++ circe ++ logging ++ tapir,
+    // Package frontend public resources
+    (Compile / unmanagedResourceDirectories) += file("modules/frontend/src/main/resources/public/"), // FIXME: un-hardcode this
     // Allow to read the generated JS on client
     Compile / resources += (frontend / Compile / fastOptJS).value.data,
     // Let the backend read the .map file for JS
@@ -38,8 +41,11 @@ lazy val frontend = (project in file("modules/frontend"))
     libraryDependencies ++= Seq( // TODO: move this to Dependencies.scala if possible ("value %%% can only be used within a task")
       "org.scala-js" %%% "scalajs-dom" % Versions.scalajsDomV
     ),
+    Compile / scalaJSModuleInitializers += {
+      ModuleInitializer.mainMethod("net.drthum.unisearch.Main", "main")
+    },
     // Build a js dependencies file
-    packageJSDependencies/ skip := false,
+    packageJSDependencies / skip := false,
     jsEnv := new org.scalajs.jsenv.nodejs.NodeJSEnv(),
     // Put the jsdeps file on a place reachable for the server
     Compile / packageJSDependencies / crossTarget := (Compile / resourceManaged).value,

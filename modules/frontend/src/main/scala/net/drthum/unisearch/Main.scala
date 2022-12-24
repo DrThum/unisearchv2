@@ -9,7 +9,7 @@ import org.scalajs.dom.document
 object Main {
 
   def main(): Unit = {
-    appendPar(document.body, "Hello world")
+    appendPar(document.body, "Hi from JS")
   }
 
   def appendPar(targetNode: dom.Node, text: String): Unit = {

@@ -2,8 +2,11 @@ package net.drthum.unisearch
 
 import java.nio.charset.StandardCharsets
 import java.util.UUID
+import scala.concurrent.ExecutionContext.global
 
 import cats.effect._
+import cats.syntax.option._
+import cats.syntax.semigroupk._
 import com.comcast.ip4s._
 import fs2.{Pipe, Stream}
 import io.circe.generic.auto._
@@ -29,6 +32,7 @@ import net.drthum.unisearch.daos.EntityDAO
 import net.drthum.unisearch.models.Entity
 import net.drthum.unisearch.models.Mediaplan.given
 import net.drthum.unisearch.services.SearchService
+import cats.data.OptionT
 
 object Main extends IOApp {
 
@@ -51,7 +55,20 @@ object Main extends IOApp {
     .in(query[String]("q"))
     .out(jsonBody[List[Entity]])
 
-  def httpApp(service: SearchService[IO]) = Router("/" -> routes(service)).orNotFound
+  def static(file: String, request: Request[IO]) = {
+    StaticFile.fromResource("/" + file, Some(request)).getOrElseF(NotFound())
+  }
+
+  val fileTypes = List(".js", ".css", ".map", ".html")
+
+  val fileRoutes = HttpRoutes.of[IO] {
+    case request @ GET -> Root => static("index.html", request)
+    case request @ GET -> Root / path if fileTypes.exists(path.endsWith) =>
+      static(path, request)
+    case _ => BadRequest()
+  }
+
+  def httpApp(service: SearchService[IO]) = Router("/" -> (routes(service) <+> fileRoutes)).orNotFound
 
   def routes(service: SearchService[IO]): HttpRoutes[IO] = {
     Http4sServerInterpreter[IO]().toRoutes(searchEndpoint.serverLogicSuccess[IO](q => service.search(q).compile.toList))
