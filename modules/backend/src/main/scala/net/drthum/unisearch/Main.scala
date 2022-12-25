@@ -57,7 +57,7 @@ object Main extends IOApp {
     case request @ GET -> Root => static("index.html", request)
     case request @ GET -> Root / path if fileTypes.exists(path.endsWith) =>
       static(path, request)
-    case _ => BadRequest()
+    case _ => NotFound()
   }
 
   def httpApp(service: SearchService[IO]) = Router("/" -> (routes(service) <+> fileRoutes)).orNotFound
