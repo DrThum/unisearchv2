@@ -42,6 +42,7 @@ lazy val frontend = (project in file("modules/frontend"))
     libraryDependencies ++= Seq( // TODO: move this to Dependencies.scala if possible ("value %%% can only be used within a task")
       "org.scala-js" %%% "scalajs-dom" % Versions.scalajsDomV,
       "com.softwaremill.sttp.tapir" %%% "tapir-sttp-client" % Dependencies.Versions.tapirV,
+      "com.softwaremill.sttp.client3" %%% "circe" % "3.8.5",
       "io.github.cquiroz" %%% "scala-java-time" % "2.5.0", // FIXME: potentially useless
       "io.circe" %%% "circe-core" % Dependencies.Versions.circeV,
       "io.circe" %%% "circe-generic" % Dependencies.Versions.circeV,

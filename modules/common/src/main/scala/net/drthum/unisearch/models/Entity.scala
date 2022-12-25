@@ -1,7 +1,7 @@
 package net.drthum.unisearch.models
 
 import java.util.UUID
-import io.circe.{Codec, Encoder}
+import io.circe.{Codec, Decoder, Encoder}
 import io.circe.generic.semiauto._
 import io.circe.syntax._
 
@@ -17,5 +17,9 @@ object Mediaplan {
 
   given Encoder[Entity] = Encoder.instance {
     case m: Mediaplan => m.asJson(mediaplanCodec)
+  }
+
+  given Decoder[Entity] = Decoder.instance { cursor =>
+    mediaplanCodec.decodeJson(cursor.value)
   }
 }
